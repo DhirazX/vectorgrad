@@ -54,7 +54,32 @@ class Value:
     def __sub__(self, other):
         return self + (-other)
 
+    def __rsub__(self, other):
+        return other + (-self)
+
     # -----------------------
+
+    # Division Functions
+    def __truediv__(self, other):
+        return self * other**-1
+
+    def __rtruediv__(self, other):
+        return other * self**-1
+
+    # ----------------------------
+
+    # Power Function
+    def __pow__(self, other):
+        assert isinstance(other, (int, float)), "Unsupported type use int/ float"
+        out = Value(self.data**other, (self, other))
+
+        def _backward():
+            self.grad += other * (self.data**other - 1) * out.grad
+
+        out.grad = _backward
+        return out
+
+    # ------------------------------
 
     def tanh(self):
         t = (math.exp(2 * self.data) - 1) / (math.exp(2 * self.data) + 1)
@@ -65,6 +90,19 @@ class Value:
 
         out._backward = _backward
         return out
+
+    # ------------------------------
+
+    def relu(self):
+        out = Value(max(self.data, 0), (self,))
+
+        def _backward():
+            self.grad += 1 if self.data > 0 else 0
+
+        out.grad = _backward
+        return out
+
+    # ------------------------------
 
     # Backward func which visits all previous nodes and calculates gradient for each node
     def backward(self):
