@@ -97,7 +97,7 @@ class Value:
         out = Value(max(self.data, 0), (self,))
 
         def _backward():
-            self.grad += 1 if self.data > 0 else 0
+            self.grad += (1 if self.data > 0 else 0) * out.grad
 
         out._backward = _backward
         return out
@@ -122,34 +122,3 @@ class Value:
         self.grad = 1.0
         for node in reversed(topo):
             node._backward()
-
-
-a = Value(2.0)
-b = Value(-3.0)
-c = a - b
-# print("c: ", c)
-c.backward()
-# print(a.grad, b.grad)
-
-x1 = Value(2.0)
-x2 = Value(0.0)
-w1 = Value(-3.0)
-w2 = Value(1.0)
-b = Value(6.8813735870195432)
-n = (x1 * w1) + (x2 * w2) + b
-o = n.tanh()
-
-
-o.backward()
-# print("o: ", o)
-# print("n.grad: ", n.grad)
-# print("-------------------")
-# print("x1: ", x1)
-# print("x2: ", x2)
-# print("w1: ", w1)
-# print("w2: ", w2)
-# print("--------------------")
-# print("x1.grad: ", x1.grad)
-# print("x2.grad: ", x2.grad)
-# print("w1.grad: ", w1.grad)
-# print("w2.grad: ", w2.grad)

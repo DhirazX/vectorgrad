@@ -15,6 +15,9 @@ class Neuron:
         out = act.tanh()
         return out
 
+    def parameters(self):
+        return self.weights + [self.bias]
+
 
 class Layer:
     def __init__(self, nin, nout):
@@ -22,7 +25,13 @@ class Layer:
 
     def __call__(self, x):
         outs = [n(x) for n in self.neurons]
-        return outs
+        return outs[0] if len(outs) == 1 else outs
+
+    def parameters(self):
+        out = []
+        for n in self.neurons:
+            out.extend(n.parameters())
+        return out
 
 
 class MLP:
@@ -35,7 +44,30 @@ class MLP:
             x = l(x)
         return x
 
+    def parameters(self):
+        out = []
+        for l in self.layers:
+            out.extend(l.parameters())
+        return out
 
+
+# Neural Net with 3 inputs, two hidden layers each having 4 nodes and a single output node
 x = [2.0, 3.0, -1.0]
 n = MLP(3, [4, 4, 1])
-print(n(x))
+# print(n(x))
+
+
+xs = [[2.0, 3.0, -1.0], [3.0, -1.0, 0.5], [0.5, 1.0, 1.0], [1.0, 1.0, -1.0]]
+ys = [1.0, -1.0, -1.0, 1.0]
+
+for _ in range(20):
+    ypred = [n(x) for x in xs]
+
+    loss = sum((yout - ygt) ** 2 for ygt, yout in zip(ys, ypred))
+    loss.backward()
+
+    for p in n.parameters():
+        p.data += -0.01 * p.grad
+
+    print("Loss: ", loss)
+    print("ypred: ", ypred)
