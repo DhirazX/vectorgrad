@@ -42,7 +42,7 @@ class Value:
         out._backward = _backward
         return out
 
-    def __rmul(self, other):
+    def __rmul__(self, other):
         return self * other
 
     # --------------------------
@@ -71,12 +71,12 @@ class Value:
     # Power Function
     def __pow__(self, other):
         assert isinstance(other, (int, float)), "Unsupported type use int/ float"
-        out = Value(self.data**other, (self, other))
+        out = Value(self.data**other, (self,))
 
         def _backward():
-            self.grad += other * (self.data**other - 1) * out.grad
+            self.grad += other * (self.data ** (other - 1)) * out.grad
 
-        out.grad = _backward
+        out._backward = _backward
         return out
 
     # ------------------------------
@@ -99,7 +99,7 @@ class Value:
         def _backward():
             self.grad += 1 if self.data > 0 else 0
 
-        out.grad = _backward
+        out._backward = _backward
         return out
 
     # ------------------------------
