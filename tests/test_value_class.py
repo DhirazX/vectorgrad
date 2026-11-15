@@ -11,17 +11,28 @@ def expr(a):
     return c + d / 2
 
 
-@pytest.mark.parametrize(("x"), [2.0, -2.0, 0.0, 0.5, 2.3])
-def test_expr_against_torch(x):
+def tanh(a):
+    return (a * 2 - 1).tanh()
+
+
+def relu(a):
+    return (a * 2 + 1).relu()
+
+
+@pytest.mark.parametrize("activation_func", [tanh, relu])
+@pytest.mark.parametrize(("x"), [-2.0, -0.3, 0.8, 1.5, -1.0, -0.4, 0.7, 1.2])
+def test_expr_against_torch(x, activation_func):
 
     # Vectorgrad
     a = Value(x)
-    e = expr(a)
+    b = activation_func(a)
+    e = expr(b)
     e.backward()
 
     # PyTorch
     apt = torch.tensor(x, requires_grad=True, dtype=torch.double)
-    ept = expr(apt)
+    bpt = activation_func(apt)
+    ept = expr(bpt)
     ept.backward()
 
     assert e.data == pytest.approx(ept.item())
