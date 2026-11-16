@@ -1,6 +1,6 @@
 import random
 
-from engine import Value
+from .engine import Value
 
 
 class Neuron:
@@ -49,25 +49,3 @@ class MLP:
         for l in self.layers:
             out.extend(l.parameters())
         return out
-
-
-# Neural Net with 3 inputs, two hidden layers each having 4 nodes and a single output node
-x = [2.0, 3.0, -1.0]
-n = MLP(3, [4, 4, 1])
-# print(n(x))
-
-
-xs = [[2.0, 3.0, -1.0], [3.0, -1.0, 0.5], [0.5, 1.0, 1.0], [1.0, 1.0, -1.0]]
-ys = [1.0, -1.0, -1.0, 1.0]
-
-for _ in range(20):
-    ypred = [n(x) for x in xs]
-
-    loss = sum((yout - ygt) ** 2 for ygt, yout in zip(ys, ypred))
-    loss.backward()
-
-    for p in n.parameters():
-        p.data += -0.01 * p.grad
-
-    print("Loss: ", loss)
-    print("ypred: ", ypred)
