@@ -11,8 +11,6 @@ class Value:
     def __repr__(self):
         return f"Value(data:{self.data})"
 
-    # -----------------------
-
     # Addition Func
     def __add__(self, other):
         other = other if isinstance(other, Value) else Value(other)
@@ -27,8 +25,6 @@ class Value:
 
     def __radd__(self, other):
         return self + other
-
-    # ----------------------
 
     # Multiplication Functions
     def __mul__(self, other):
@@ -45,8 +41,6 @@ class Value:
     def __rmul__(self, other):
         return self * other
 
-    # --------------------------
-
     # Subtraction Functions
     def __neg__(self):
         return self * -1
@@ -57,16 +51,12 @@ class Value:
     def __rsub__(self, other):
         return other + (-self)
 
-    # -----------------------
-
     # Division Functions
     def __truediv__(self, other):
         return self * other**-1
 
     def __rtruediv__(self, other):
         return other * self**-1
-
-    # ----------------------------
 
     # Power Function
     def __pow__(self, other):
@@ -79,8 +69,6 @@ class Value:
         out._backward = _backward
         return out
 
-    # ------------------------------
-
     def tanh(self):
         t = (math.exp(2 * self.data) - 1) / (math.exp(2 * self.data) + 1)
         out = Value(t, (self,))
@@ -91,8 +79,6 @@ class Value:
         out._backward = _backward
         return out
 
-    # ------------------------------
-
     def relu(self):
         out = Value(max(self.data, 0), (self,))
 
@@ -101,8 +87,6 @@ class Value:
 
         out._backward = _backward
         return out
-
-    # ------------------------------
 
     # Backward func which visits all previous nodes and calculates gradient for each node
     def backward(self):
