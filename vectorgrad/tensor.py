@@ -63,6 +63,17 @@ class Tensor:
     def __rmul__(self, other):
         return self * other
 
+    def __matmul__(self, other):
+        other = other if isinstance(other, Tensor) else Tensor(other)
+        out = Tensor((self.data @ other.data), (self, other))
+
+        def _backward():
+            self.grad += out.grad @ other.data.T
+            other.grad += self.data.T @ out.grad
+
+        out._backward = _backward
+        return out
+
     def backward(self):
         topo = []
         visited = set()
@@ -81,6 +92,15 @@ class Tensor:
         print("Self grad:: ", self.grad)
         for node in reversed(topo):
             node._backward()
+
+    def sum(self):
+        out = Tensor(np.sum(self.data), (self,))
+
+        def _backward():
+            self.grad += np.ones_like(self.data) * out.grad
+
+        out._backward = _backward
+        return out
 
 
 def _unbroadcast(grad, original_shape):
@@ -102,19 +122,3 @@ c = a - b
 print("Out: ", c)
 c.backward()
 print("a.grad :", a.grad)
-
-
-# Scalar broadcasting
-a = Tensor([2, 3])
-b = Tensor(2)
-(a * b).backward()
-
-# Matrix + vector broadcasting
-a = Tensor([[1, 2, 3], [4, 5, 6]])
-b = Tensor([10, 20, 30])
-(a + b).backward()
-
-# Broadcasting with dimensions of size 1
-a = Tensor([[1], [2]])
-b = Tensor([[10, 20, 30]])
-(a * b).backward()
