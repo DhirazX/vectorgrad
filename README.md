@@ -2,14 +2,6 @@
 
 A small automatic differentiation engine written from scratch, based on Andrej Karpathy's [micrograd](https://github.com/karpathy/micrograd). It starts with scalars and is being extended to NumPy-backed tensors.
 
-## Status
-
-- [x] Scalar autograd engine (`Value`) with backpropagation
-- [x] Small neural network library (`Neuron`, `Layer`, `MLP`)
-- [x] Gradients and network outputs tested against PyTorch
-- [ ] Tensor engine with matmul, sum, and broadcasting
-- [ ] `Module` base class, optimizers, and a training example
-
 ## Usage
 
 ```python
@@ -38,6 +30,3 @@ pytest
 
 The tests build the same computation in vectorgrad and PyTorch and check that the values and gradients match.
 
-## Acknowledgements
-
-Based on [micrograd](https://github.com/karpathy/micrograd) by Andrej Karpathy.
