@@ -22,6 +22,9 @@ class Tensor:
         out._backward = _backward
         return out
 
+    def __radd__(self, other):
+        return self + other
+
     def __sub__(self, other):
         return self + other * -1
 
@@ -65,6 +68,7 @@ class Tensor:
 
     def __matmul__(self, other):
         other = other if isinstance(other, Tensor) else Tensor(other)
+        assert self.data.ndim == 2 and other.data.ndim == 2
         out = Tensor((self.data @ other.data), (self, other))
 
         def _backward():
@@ -89,15 +93,20 @@ class Tensor:
         build_topo(self)
 
         self.grad = np.ones(self.data.shape)
-        print("Self grad:: ", self.grad)
         for node in reversed(topo):
             node._backward()
 
-    def sum(self):
-        out = Tensor(np.sum(self.data), (self,))
+    def sum(self, axis=None):
+        assert isinstance(axis, (type(None), int))
+        out = Tensor(np.sum(self.data, axis=axis), (self,))
 
         def _backward():
-            self.grad += np.ones_like(self.data) * out.grad
+            grad = out.grad
+
+            if axis is not None:
+                grad = np.expand_dims(grad, axis=axis)
+
+            self.grad += np.ones_like(self.data) * grad
 
         out._backward = _backward
         return out
@@ -114,11 +123,3 @@ def _unbroadcast(grad, original_shape):
             grad = grad.sum(axis=axis, keepdims=True)
 
     return grad
-
-
-a = Tensor([2, 3])
-b = Tensor([4, 5])
-c = a - b
-print("Out: ", c)
-c.backward()
-print("a.grad :", a.grad)
