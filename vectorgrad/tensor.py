@@ -2,6 +2,8 @@ import numpy as np
 
 
 class Tensor:
+    __array_ufunc__ = None
+
     def __init__(self, data, _children=()):
         self.data = np.array(data, dtype=float)
         self.grad = np.zeros_like(self.data)
@@ -76,6 +78,32 @@ class Tensor:
             other.grad += self.data.T @ out.grad
 
         out._backward = _backward
+        return out
+
+    def tanh(self):
+        t = np.tanh(self.data)
+        out = Tensor(t, (self,))
+
+        def _backward():
+            self.grad += (1 - t**2) * out.grad
+
+        out._backward = _backward
+        return out
+
+    def relu(self):
+        out = Tensor(np.maximum(self.data, 0), (self,))
+
+        def _backward():
+            self.grad += np.where(self.data > 0, 1, 0) * out.grad
+
+        out._backward = _backward
+        return out
+
+    def mean(self, axis=None):
+        assert isinstance(axis, (type(None), int))
+        n = np.size(self.data, axis=axis)
+        out = self.sum(axis=axis) / n
+
         return out
 
     def backward(self):
