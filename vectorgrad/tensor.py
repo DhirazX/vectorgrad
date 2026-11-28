@@ -80,6 +80,10 @@ class Tensor:
         out._backward = _backward
         return out
 
+    def __rmatmul__(self, other):
+        other = other if isinstance(other, Tensor) else Tensor(other)
+        return other @ self
+
     def tanh(self):
         t = np.tanh(self.data)
         out = Tensor(t, (self,))

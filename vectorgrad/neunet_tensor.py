@@ -5,8 +5,9 @@ from .tensor import Tensor
 
 class Layer:
     def __init__(self, nin, nout):
-        self.bias = Tensor(np.random.default_rng().uniform(-1, 1, size=(1, nout)))
-        self.weights = Tensor(np.random.default_rng().uniform(-1, 1, size=(nin, nout)))
+        rng = np.random.default_rng()
+        self.bias = Tensor(rng.uniform(-1, 1, size=(1, nout)))
+        self.weights = Tensor(rng.uniform(-1, 1, size=(nin, nout)))
 
     def __call__(self, x):
         x = x if isinstance(x, Tensor) else Tensor(x)
